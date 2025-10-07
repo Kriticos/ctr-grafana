@@ -130,8 +130,57 @@ Descomente a linha 23 do arquivo docker-compose.yml
 - ${VOL_CONFIG_PATH}
 ```
 
-## Subir o container novamente
+- Subir o container novamente
 
 ```bash
 docker compose up -d
+```
+
+## Acessando o grafana WEB [Troca a porta caso tenha alterado no .env]
+
+```cmd
+http://<IP_SERVIDOR>:6080 
+```
+
+
+
+## Voltando Backup
+
+- Pare o container
+```bash
+docker compose stop
+```
+
+- Baixar o backup da base de dados
+- Copie o arquivo grafana_backup_ANO_MES_HORA.sql para a pasta temp dentro do container ctr-mysql
+
+```bash
+docker cp /bskp/ctr-grafana/grafana_backup_ANO_MES_HORA.sql ctr-mysql:/tmp/
+```
+### Restaurando o backup do grafana
+
+Acesse o caonteiner ctr-mysql
+
+```bash
+docker exec -it ctr-mysql bash
+```
+
+Restaure a base de dados
+
+```bash
+mysql -u grafana -p grafana < /tmp/grafana_backup_2025-10-06_22-00-01.sql
+```
+
+### Plugins
+
+- Zabbix
+- Business Charts
+- HTML Graphics
+
+Após instalar os plugins reinicie o container
+
+```bash
+docker compose stop
+
+docker compose up --build -d
 ```
