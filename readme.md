@@ -25,35 +25,11 @@ docker network create --driver bridge network-share --subnet=172.18.0.0/16
 ```plaintext
 bskp/
 └── ctr-grafana              # Projeto Grafana
-     ├── data/               # Dados persistentes do Grafana
-     ├── grafana-config/     # Configurações personalizadas do Grafana
-     ├── maps/               # Arquivos geojson
-     ├── docker-compose.yml  # Definição dos serviços Docker
-     ├── .env.example        # Exemplo de variáveis de ambiente
-     ├── Dockerfile          # Dockerfile
-     └── README.md           # Documentação do serviço
-```
-
-
-
-
-
-## Criar a rede externa se ainda não existir
-
-```bash
-docker network create --driver bridge network-share --subnet=172.18.0.0/16
-```
-
-### OBSERVAÇÃO
-
-**Ajuste a subnet conforme necessário.**
-
-```plaintext
-bskp/
-└── ctr-grafana              # Projeto Grafana
-     ├── data/               # Dados persistentes do Grafana
-     ├── grafana-config/     # Configurações personalizadas do Grafana
-     ├── maps/               # Arquivos geojson
+     ├── config              # Dados persistentes do Grafana
+     |     ├──grafana.ini    # Configuração do Grafana
+     |     └──ldap.toml      # Configuração do LDAP
+     ├── data                # Configurações personalizadas do Grafana
+     ├── maps                # Arquivos geojson
      ├── docker-compose.yml  # Definição dos serviços Docker
      ├── .env.example        # Exemplo de variáveis de ambiente
      ├── Dockerfile          # Dockerfile
@@ -122,3 +98,24 @@ Qualquer dúvida ou sugestão, abra uma issue ou envie uma contribuição!
 - Certifique-se de que o banco MySQL exista e as credenciais no `.env` estejam corretas.  
 - Os diretórios mapeados em `VOL_GRAFANA_PATH`, `VOL_CONFIG_PATH` e `VOL_MAPS_PATH` devem existir no host.  
 - Ajuste as permissões dos diretórios conforme necessário para garantir que o Grafana possa ler e escrever neles.
+
+## Apos subir o grafana pela primeira vez copie os arquivos grafana.ini e ldap.toml para a pasta config
+
+### Copiar o grafana.ini e ldap.toml
+
+```bash
+docker cp ctr-grafana:/etc/grafana/grafana.ini /bskp/ctr-grafana/config/grafana.ini
+```
+
+### Copiar o ldap.toml
+
+```bash
+docker cp ctr-grafana:/etc/grafana/ldap.toml /bskp/ctr-grafana/config/ldap.toml
+```
+
+### Atualizar as permissões da pasta config
+
+```bas
+chown -R 472:472 /bskp/ctr-grafana/config
+chmod -R 640 /bskp/ctr-grafana/config/*
+```
