@@ -1,8 +1,9 @@
 # Ignore todos os arquivos .env em qualquer pasta
 **/.env
 
-grafana/**
-!grafana/.gitkeep
+# Mas mantém a pasta em si (via .gitkeep)
+config/**
+!config/.gitkeep
 
-grafana-config/**
-!grafana-config/.gitkeep
+data/plugins/**
+!data/plugins/.gitkeep
