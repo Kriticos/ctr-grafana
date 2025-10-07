@@ -99,23 +99,39 @@ Qualquer dúvida ou sugestão, abra uma issue ou envie uma contribuição!
 - Os diretórios mapeados em `VOL_GRAFANA_PATH`, `VOL_CONFIG_PATH` e `VOL_MAPS_PATH` devem existir no host.  
 - Ajuste as permissões dos diretórios conforme necessário para garantir que o Grafana possa ler e escrever neles.
 
-## Apos subir o grafana pela primeira vez copie os arquivos grafana.ini e ldap.toml para a pasta config
+## Apos subir o grafana pela primeira vez
 
-### Copiar o grafana.ini e ldap.toml
+- Copie os arquivos grafana.ini e ldap.toml para a pasta config
 
 ```bash
 docker cp ctr-grafana:/etc/grafana/grafana.ini /bskp/ctr-grafana/config/grafana.ini
-```
 
-### Copiar o ldap.toml
-
-```bash
 docker cp ctr-grafana:/etc/grafana/ldap.toml /bskp/ctr-grafana/config/ldap.toml
 ```
 
-### Atualizar as permissões da pasta config
+- Atualizar as permissões da pasta config
 
-```bas
+```bash
 chown -R 472:472 /bskp/ctr-grafana/config
 chmod -R 640 /bskp/ctr-grafana/config/*
+```
+
+- Parar o container
+
+```bash
+docker compose stop
+```
+
+- Ajustar docker-composeyml
+
+Descomente a linha 23 do arquivo docker-compose.yml
+
+```yaml
+- ${VOL_CONFIG_PATH}
+```
+
+## Subir o container novamente
+
+```bash
+docker compose up -d
 ```
