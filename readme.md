@@ -67,7 +67,7 @@ chown -R 472:472 config data maps
 chmod -R 755 config data maps
 ```
 
-# Configuração das variáveis de ambiente
+## Configuração das variáveis de ambiente
 
 Copie o template e preencha os valores:
 
