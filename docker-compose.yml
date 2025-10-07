@@ -3,7 +3,7 @@ services:
     image: grafana/grafana:${RELEASE}
     env_file:
       - .env
-    container_name: ${CTR_GRAFANA_HOST}
+    container_name: ${SRV_GRAFANA_HOST}
     environment:
       DB_SERVER_HOST: ${DB_SERVER_HOST}
       GF_SECURITY_ADMIN_PASSWORD: ${ADMIN_PASSWD}
@@ -20,6 +20,7 @@ services:
     volumes:
       - ${VOL_GRAFANA_PATH}
       - ${VOL_CONFIG_PATH}
+      - ${VOL_MAPS_PATH}
       - ${VOL_LOCALTIME}
       - ${VOL_TZ}
     restart: unless-stopped
