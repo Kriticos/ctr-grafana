@@ -1,16 +1,42 @@
 # Projeto Grafana com Docker Compose
 
 Este repositório fornece um ambiente Docker Compose para executar o Grafana, configurado via variáveis de ambiente.  
-> **Importante:** o banco MySQL já deve existir e estar acessível antes de iniciar o Grafana.
 
 ## Pré-requisitos
 
-- Docker e Docker Compose instalados  
-- Rede Docker externa `network-share` criada:
+- Docker e Docker Compose.
+- Rede Docker `network-share` já criada:
+- Container ctr-mysql rodando
 
 ```bash
 docker network create --driver bridge network-share --subnet=<SUBNET>
 ```
+
+## Criar a rede externa se ainda não existir
+
+```bash
+docker network create --driver bridge network-share --subnet=172.18.0.0/16
+```
+
+### OBSERVAÇÃO
+
+**Ajuste a subnet conforme necessário.**
+
+```plaintext
+bskp/
+└── ctr-grafana              # Projeto Grafana
+     ├── data/               # Dados persistentes do Grafana
+     ├── grafana-config/     # Configurações personalizadas do Grafana
+     ├── maps/               # Arquivos geojson
+     ├── docker-compose.yml  # Definição dos serviços Docker
+     ├── .env.example        # Exemplo de variáveis de ambiente
+     ├── Dockerfile          # Dockerfile
+     └── README.md           # Documentação do serviço
+```
+
+
+
+
 
 - Banco MySQL criado com o nome definido em `DATABASE_NAME`
 
