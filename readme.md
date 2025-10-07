@@ -86,11 +86,13 @@ docker exec -it ctr-mysql mysql -u root -p
 ```
 
 ```sql
-CREATE DATABASE IF NOT EXISTS grafana CHARACTER SET utf8 COLLATE utf8_bin;
-CREATE USER 'grafana'@'localhost' IDENTIFIED BY 'PASSWORD';
+CREATE DATABASE IF NOT EXISTS grafana CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE USER IF NOT EXISTS 'grafana'@'localhost' IDENTIFIED BY 'PASSWORD';
 GRANT ALL PRIVILEGES ON grafana.* TO 'grafana'@'localhost';
+CREATE USER IF NOT EXISTS 'grafana'@'%' IDENTIFIED BY 'PASSWORD';
+GRANT ALL PRIVILEGES ON grafana.* TO 'grafana'@'%';
 FLUSH PRIVILEGES;
-exit
+EXIT;
 ```
 
 ## Subindo o serviço
