@@ -19,7 +19,8 @@ services:
         ipv4_address: ${IPV4_ADDRESS}
     volumes:
       - ${VOL_GRAFANA_PATH}
-      - ${VOL_CONFIG_PATH}
+      # Descomente a linha abaixo apos copiar os arquivos grafana.ini e ldap.toml para a pasta config
+      #- ${VOL_CONFIG_PATH}
       - ${VOL_MAPS_PATH}
       - ${VOL_LOCALTIME}
       - ${VOL_TZ}
