@@ -142,11 +142,10 @@ docker compose up -d
 http://<IP_SERVIDOR>:6080 
 ```
 
-
-
 ## Voltando Backup
 
 - Pare o container
+
 ```bash
 docker compose stop
 ```
@@ -157,9 +156,10 @@ docker compose stop
 ```bash
 docker cp /bskp/ctr-grafana/grafana_backup_ANO_MES_HORA.sql ctr-mysql:/tmp/
 ```
+
 ### Restaurando o backup do grafana
 
-Acesse o caonteiner ctr-mysql
+Acesse o conteiner ctr-mysql
 
 ```bash
 docker exec -it ctr-mysql bash
