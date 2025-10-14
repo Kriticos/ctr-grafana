@@ -4,9 +4,11 @@ Este repositório fornece um ambiente Docker Compose para executar o Grafana, co
 
 ## Pré-requisitos
 
-- Docker e Docker Compose.
+- [Docker](https://www.docker.com/get-started)
+- [Docker Compose](https://docs.docker.com/compose/)
+- [Git](https://git-scm.com/)
 - Rede Docker `network-share` já criada:
-- Container ctr-mysql rodando
+- Container [ctr-mysql](https://github.com/Kriticos/ctr-mysql) rodando
 
 ```bash
 docker network create --driver bridge network-share --subnet=<SUBNET>
@@ -18,9 +20,7 @@ docker network create --driver bridge network-share --subnet=<SUBNET>
 docker network create --driver bridge network-share --subnet=172.18.0.0/16
 ```
 
-### OBSERVAÇÃO
-
-**Ajuste a subnet conforme necessário.**
+> **OBS:**  Ajuste a subnet conforme a necessidade do seu cenário.
 
 ```plaintext
 bskp/
@@ -36,24 +36,22 @@ bskp/
      └── README.md           # Documentação do serviço
 ```
 
-## Permissões das Pastas
+## 1. Permissões das Pastas
 
 ```bash
 chown -R 472:472 config data maps
 chmod -R 755 config data maps
 ```
 
-## Configuração das variáveis de ambiente
+## 2. Arquivo **.env**
 
-Copie o template e preencha os valores:
+Na pasta /bskp/ctr-grafana, crie uma cópia do arquivo `.env.example` e renomeie-a para `.env`:
 
 ```bash
-cp /bskp/ctr-grafana/.env.example /bskp/ctr-grafana/.env
+cp .env.example .env
 ```
 
-Ajuste as variáveis no arquivo `.env`.
-
-## Criando a base de dados
+## 3. Criando a base de dados
 
 Acesse o container do ctr-mysql e crie a base de dados para o Grafana:
 
@@ -61,21 +59,47 @@ Acesse o container do ctr-mysql e crie a base de dados para o Grafana:
 docker exec -it ctr-mysql mysql -u root -p
 ```
 
-```sql
-CREATE DATABASE IF NOT EXISTS grafana CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-CREATE USER IF NOT EXISTS 'grafana'@'localhost' IDENTIFIED BY 'PASSWORD';
-GRANT ALL PRIVILEGES ON grafana.* TO 'grafana'@'localhost';
-CREATE USER IF NOT EXISTS 'grafana'@'%' IDENTIFIED BY 'PASSWORD';
-GRANT ALL PRIVILEGES ON grafana.* TO 'grafana'@'%';
-FLUSH PRIVILEGES;
-EXIT;
+## 4. Criando a base de dados para o grafana
+
+Acesse o container do ctr-mysql e crie a base de dados para o grafana:
+
+```bash
+docker exec -it ctr-mysql mysql -u root -p
 ```
 
-## Subindo o serviço
+```sql
+-- 1) Banco com charset/collation modernos
+CREATE DATABASE IF NOT EXISTS grafana
+  CHARACTER SET utf8mb4
+  COLLATE utf8mb4_unicode_ci;
+
+-- 2) Usuário (opção A: acessa de qualquer host)
+CREATE USER IF NOT EXISTS 'grafana'@'%' IDENTIFIED BY 'PASSWORD';
+
+--   (opção B: se o grafana estiver no MESMO host do MySQL)
+-- CREATE USER IF NOT EXISTS 'grafana'@'localhost' IDENTIFIED BY 'PASSWORD';
+
+-- 3) Permissões mínimas necessárias no banco grafana
+GRANT ALL PRIVILEGES ON grafana.* TO 'grafana'@'%';
+-- GRANT ALL PRIVILEGES ON grafana.* TO 'grafana'@'localhost';
+
+-- 4) Em MySQL/MariaDB atuais, FLUSH PRIVILEGES é opcional (o GRANT já recarrega)
+FLUSH PRIVILEGES;
+
+exit
+```
+
+> **OBS:** Substitua `PASSWORD` pela senha desejada e ajuste o host conforme a necessidade do seu cenário.
+
+## 5. Subindo o serviço
 
 Para iniciar todos os containers em segundo plano:
 
 ```bash
+# Acessar pasta do container
+cd /bskp/ctr-grafana
+
+# Iniciar o container
 docker compose up -d
 ```
 
@@ -93,13 +117,7 @@ docker logs -f ctr-grafana
 
 Qualquer dúvida ou sugestão, abra uma issue ou envie uma contribuição!
 
-## Observações
-
-- Certifique-se de que o banco MySQL exista e as credenciais no `.env` estejam corretas.  
-- Os diretórios mapeados em `VOL_GRAFANA_PATH`, `VOL_CONFIG_PATH` e `VOL_MAPS_PATH` devem existir no host.  
-- Ajuste as permissões dos diretórios conforme necessário para garantir que o Grafana possa ler e escrever neles.
-
-## Apos subir o grafana pela primeira vez
+## 6. Após subir o grafana pela primeira vez
 
 - Copie os arquivos grafana.ini e ldap.toml para a pasta config
 
@@ -136,39 +154,58 @@ Descomente a linha 23 do arquivo docker-compose.yml
 docker compose up -d
 ```
 
-## Acessando o grafana WEB [Troca a porta caso tenha alterado no .env]
+## 7. Restaurando o backup do grafana
 
-```cmd
-http://<IP_SERVIDOR>:6080 
-```
-
-## Voltando Backup
-
-- Pare o container
+### 7.1 Para o container do grafana
 
 ```bash
+# Acessar pasta do container
+cd /bskp/ctr-grafana
+
+# Parar o container
 docker compose stop
 ```
 
-- Baixar o backup da base de dados
-- Copie o arquivo grafana_backup_ANO_MES_HORA.sql para a pasta temp dentro do container ctr-mysql
+### 7.2 Copiando o arquivo para dentro do container
+
+- Copie o arquivo **.sql** para a pasta **/tmp** do servidor
+
+- Depois de copiar o arquivo **.sql** para a pasta **/tmp** do servidor, copie o arquivo para dentro do container ctr-mysql
 
 ```bash
-docker cp /bskp/ctr-grafana/grafana_backup_ANO_MES_HORA.sql ctr-mysql:/tmp/
+docker cp /tmp/NOME_DO_BKP.sql ctr-mysql:/tmp/
 ```
 
-### Restaurando o backup do grafana
+### 7.3 Restaurando o banco de dados
 
-Acesse o conteiner ctr-mysql
+- Acesse o conteiner ctr-mysql
 
 ```bash
 docker exec -it ctr-mysql bash
 ```
 
-Restaure a base de dados
+- Restaure a base de dados
 
 ```bash
-mysql -u grafana -p grafana < /tmp/grafana_backup_2025-10-06_22-00-01.sql
+mysql -u grafana -p grafana < /tmp/NOME_DO_BKP.sql
+```
+
+- Digite a senha do usuario grafana do banco de dados e aguarde o processo terminar
+
+- Após terminar saia do container
+
+```bash
+exit
+```
+
+- Inicie o container novamente
+
+```bash
+# Acessar pasta do container
+cd /bskp/ctr-grafana
+
+# Subir o container
+docker compose up -d
 ```
 
 ### Plugins
@@ -183,4 +220,10 @@ Após instalar os plugins reinicie o container
 docker compose stop
 
 docker compose up --build -d
+```
+
+## Acessando o grafana WEB [Troca a porta caso tenha alterado no .env]
+
+```cmd
+http://<IP_SERVIDOR>:6080 
 ```
